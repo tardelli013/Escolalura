@@ -30,14 +30,6 @@ public class Aluno {
 		this.nome = nome;
 	}
 
-	public Date getDataNascimento() {
-		return dataNascimento;
-	}
-
-	public void setDataNascimento(Date dataNascimento) {
-		this.dataNascimento = dataNascimento;
-	}
-
 	public Curso getCurso() {
 		return curso;
 	}
@@ -60,6 +52,19 @@ public class Aluno {
 
 	public void setHabilidades(List<Habilidade> habilidades) {
 		this.habilidades = habilidades;
+	}
+
+	public Date getDataNascimento() {
+		return dataNascimento;
+	}
+
+	public void setDataNascimento(Date dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+
+	public Aluno criarId() {
+		setId(new ObjectId());
+		return this;
 	}
 
 }
