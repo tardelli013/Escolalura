@@ -76,4 +76,42 @@ public class AlunoRepository {
 		return resultado;
 	}
 
+	public List<Aluno> pesquisaPor(String nome) {
+		criarConexao();
+		MongoCollection<Aluno> alunosCollection = this.bancoDeDados.getCollection("alunos", Aluno.class);
+		MongoCursor<Aluno> resultados = alunosCollection.find(Filters.eq("nome", nome), Aluno.class).iterator();
+		List<Aluno> alunos = popularAlunos(resultados);
+
+		this.cliente.close();
+
+		return alunos;
+	}
+
+	private List<Aluno> popularAlunos(MongoCursor<Aluno> resultados) {
+		List<Aluno> alunos = new ArrayList<>();
+
+		while (resultados.hasNext()) {
+			alunos.add(resultados.next());
+		}
+		return alunos;
+	}
+
+	public List<Aluno> pesquisaPor(String classificacao, double nota) {
+		criarConexao();
+		MongoCollection<Aluno> alunosCollection = this.bancoDeDados.getCollection("alunos", Aluno.class);
+		MongoCursor<Aluno> resultados = null;
+
+		if (classificacao.equals("reprovados")) {
+			resultados = alunosCollection.find(Filters.lt("notas", nota)).iterator();
+		} else if (classificacao.equals("aprovados")) {
+			resultados = alunosCollection.find(Filters.gte("notas", nota)).iterator();
+		}
+
+		List<Aluno> alunos = popularAlunos(resultados);
+
+		this.cliente.close();
+		return alunos;
+
+	}
+
 }
