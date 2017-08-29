@@ -4,6 +4,16 @@ public class Habilidade {
 	private String nome;
 	private String nivel;
 
+	public Habilidade() {
+		super();
+	}
+
+	public Habilidade(String nome, String nivel) {
+		super();
+		this.nome = nome;
+		this.nivel = nivel;
+	}
+
 	public String getNome() {
 		return nome;
 	}

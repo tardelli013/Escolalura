@@ -4,6 +4,14 @@ public class Nota {
 
 	private Double valor;
 
+	public Nota() {
+		super();
+	}
+
+	public Nota(Double valor) {
+		this.valor = valor;
+	}
+
 	public Double getValor() {
 		return valor;
 	}

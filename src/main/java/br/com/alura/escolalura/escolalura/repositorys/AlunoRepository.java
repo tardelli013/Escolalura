@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.bson.codecs.Codec;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
 import com.mongodb.MongoClient;
@@ -14,6 +15,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 
 import br.com.alura.escolalura.escolalura.codecs.AlunoCodec;
 import br.com.alura.escolalura.escolalura.models.Aluno;
@@ -40,7 +42,14 @@ public class AlunoRepository {
 	public void salvar(Aluno aluno) {
 		criarConexao();
 		MongoCollection<Aluno> alunos = this.bancoDeDados.getCollection("alunos", Aluno.class);
-		alunos.insertOne(aluno);
+
+		if (aluno.getId() == null) {
+			alunos.insertOne(aluno);
+
+		} else {
+			alunos.updateOne(Filters.eq("_id", aluno.getId()), new Document("$set", aluno));
+		}
+
 	}
 
 	public List<Aluno> obterTodosAlunos() {
@@ -56,6 +65,15 @@ public class AlunoRepository {
 		}
 
 		return alunosEncontrados;
+	}
+
+	public Aluno obterAlunoPorId(String id) {
+		criarConexao();
+		MongoCollection<Aluno> alunos = this.bancoDeDados.getCollection("alunos", Aluno.class);
+
+		Aluno resultado = alunos.find(Filters.eq("_id", new ObjectId(id))).first();
+
+		return resultado;
 	}
 
 }
