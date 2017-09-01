@@ -36,17 +36,18 @@ public class NotaController {
 		repository.salvar(aluno.adicionar(nota, aluno));
 		return "redirect:/aluno/listar";
 	}
-	
+
 	@GetMapping("/nota/iniciarpesquisa")
 	public String iniciarPesquisa() {
-	  return "nota/pesquisar";
+		return "nota/pesquisar";
 	}
-	
+
 	@GetMapping("/nota/pesquisar")
-	public String pesquisarPor(@RequestParam("classificacao") String classificacao, @RequestParam("notacorte") String notaCorte, Model model) {
-	  List<Aluno> alunos = repository.pesquisaPor(classificacao, Double.parseDouble(notaCorte));
-	  model.addAttribute("alunos", alunos);
-	  return "nota/pesquisar";
+	public String pesquisarPor(@RequestParam("classificacao") String classificacao,
+			@RequestParam("notacorte") String notaCorte, Model model) {
+		List<Aluno> alunos = repository.pesquisaPor(classificacao, Double.parseDouble(notaCorte));
+		model.addAttribute("alunos", alunos);
+		return "nota/pesquisar";
 	}
 
 }

@@ -16,6 +16,7 @@ import org.bson.codecs.EncoderContext;
 import org.bson.types.ObjectId;
 
 import br.com.alura.escolalura.escolalura.models.Aluno;
+import br.com.alura.escolalura.escolalura.models.Contato;
 import br.com.alura.escolalura.escolalura.models.Curso;
 import br.com.alura.escolalura.escolalura.models.Habilidade;
 import br.com.alura.escolalura.escolalura.models.Nota;
@@ -37,11 +38,20 @@ public class AlunoCodec implements CollectibleCodec<Aluno> {
 		List<Habilidade> habilidades = aluno.getHabilidades();
 		List<Nota> notas = aluno.getNotas();
 
+		Contato contato = aluno.getContato();
+
+		List<Double> coordinates = new ArrayList<Double>();
+		for (Double location : contato.getCoordinates()) {
+			coordinates.add(location);
+		}
+
 		Document documento = new Document();
 		documento.put("_id", id);
 		documento.put("nome", nome);
 		documento.put("data_nascimento", dataNascimento);
 		documento.put("curso", new Document("nome", curso.getNome()));
+
+		documento.put("contato", new Document().append("endereco", contato.getEndereco()).append("coordinates", coordinates).append("type", contato.getType()));
 
 		if (habilidades != null) {
 			List<Document> habildiadesDocuments = new ArrayList<>();
@@ -89,22 +99,29 @@ public class AlunoCodec implements CollectibleCodec<Aluno> {
 
 		if (notas != null) {
 			List<Nota> notasDoALuno = new ArrayList<>();
-		
+
 			for (Double nota : notas) {
 				notasDoALuno.add(new Nota(nota));
 			}
 			aluno.setNotas(notasDoALuno);
 		}
-		
-		List<Document> habilidades =  (List<Document>) document.get("habilidades");
+
+		List<Document> habilidades = (List<Document>) document.get("habilidades");
 		if (habilidades != null) {
 			List<Habilidade> habilidadesDoAluno = new ArrayList<>();
-		
+
 			for (Document habil : habilidades) {
 				habilidadesDoAluno.add(new Habilidade(habil.getString("nome"), habil.getString("nivel")));
 			}
-			
+
 			aluno.setHabilidades(habilidadesDoAluno);
+		}
+
+		Document contato = (Document) document.get("contato");
+		if (contato != null) {
+			String endereco = contato.getString("contato");
+			List<Double> coordinates = (List<Double>) contato.get("coordinates");
+			aluno.setContato(new Contato(endereco, coordinates));
 		}
 
 		return aluno;

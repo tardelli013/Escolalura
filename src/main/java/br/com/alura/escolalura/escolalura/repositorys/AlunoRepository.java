@@ -16,6 +16,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.geojson.Point;
+import com.mongodb.client.model.geojson.Position;
 
 import br.com.alura.escolalura.escolalura.codecs.AlunoCodec;
 import br.com.alura.escolalura.escolalura.models.Aluno;
@@ -50,6 +53,7 @@ public class AlunoRepository {
 			alunos.updateOne(Filters.eq("_id", aluno.getId()), new Document("$set", aluno));
 		}
 
+		fecharConexao();
 	}
 
 	public List<Aluno> obterTodosAlunos() {
@@ -64,6 +68,7 @@ public class AlunoRepository {
 			alunosEncontrados.add(aluno);
 		}
 
+		fecharConexao();
 		return alunosEncontrados;
 	}
 
@@ -73,7 +78,12 @@ public class AlunoRepository {
 
 		Aluno resultado = alunos.find(Filters.eq("_id", new ObjectId(id))).first();
 
+		fecharConexao();
 		return resultado;
+	}
+
+	private void fecharConexao() {
+		this.cliente.close();
 	}
 
 	public List<Aluno> pesquisaPor(String nome) {
@@ -82,7 +92,7 @@ public class AlunoRepository {
 		MongoCursor<Aluno> resultados = alunosCollection.find(Filters.eq("nome", nome), Aluno.class).iterator();
 		List<Aluno> alunos = popularAlunos(resultados);
 
-		this.cliente.close();
+		fecharConexao();
 
 		return alunos;
 	}
@@ -93,6 +103,8 @@ public class AlunoRepository {
 		while (resultados.hasNext()) {
 			alunos.add(resultados.next());
 		}
+
+		fecharConexao();
 		return alunos;
 	}
 
@@ -109,9 +121,25 @@ public class AlunoRepository {
 
 		List<Aluno> alunos = popularAlunos(resultados);
 
-		this.cliente.close();
+		fecharConexao();
 		return alunos;
 
+	}
+
+	public List<Aluno> pesquisaPorGeolocalizao(Aluno aluno) {
+		criarConexao();
+		MongoCollection<Aluno> alunoCollection = this.bancoDeDados.getCollection("alunos", Aluno.class);
+		alunoCollection.createIndex(Indexes.geo2dsphere("contato"));
+
+		List<Double> coordinates = aluno.getContato().getCoordinates();
+		Point pontoReferencia = new Point(new Position(coordinates.get(0), coordinates.get(1)));
+
+		MongoCursor<Aluno> resultados = alunoCollection
+				.find(Filters.nearSphere("contato", pontoReferencia, 2000.0, 0.0)).limit(2).skip(1).iterator();
+		List<Aluno> alunos = popularAlunos(resultados);
+
+		fecharConexao();
+		return alunos;
 	}
 
 }

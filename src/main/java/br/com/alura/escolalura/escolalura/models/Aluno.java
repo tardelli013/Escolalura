@@ -14,6 +14,7 @@ public class Aluno {
 	private Curso curso;
 	private List<Nota> notas;
 	private List<Habilidade> habilidades;
+	private Contato contato;
 
 	public ObjectId getId() {
 		return id;
@@ -73,6 +74,14 @@ public class Aluno {
 	public Aluno criarId() {
 		setId(new ObjectId());
 		return this;
+	}
+
+	public Contato getContato() {
+		return contato;
+	}
+
+	public void setContato(Contato contato) {
+		this.contato = contato;
 	}
 
 	public Aluno adicionar(Habilidade habilidade, Aluno aluno) {
